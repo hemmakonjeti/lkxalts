@@ -1,0 +1,18 @@
+{
+  "config": {
+    "chainId": 12345,      // Unique identifier for your private blockchain
+    "homesteadBlock": 0,   // Block at which the Ethereum Homestead hard fork occurred
+    "eip150Block": 0,      // Block at which the Ethereum EIP-150 hard fork occurred
+    "eip155Block": 0,      // Block at which the Ethereum EIP-155 hard fork occurred
+    "eip158Block": 0       // Block at which the Ethereum EIP-158 hard fork occurred
+  },
+  "alloc": {},            // Initial allocation of funds to specific accounts (leave empty for a fair launch)
+  "coinbase": "0x0000000000000000000000000000000000000000",  // The address that will receive mining rewards
+  "difficulty": "0x400",  // Difficulty of the blockchain, higher values make mining harder
+  "extraData": "0x",      // Extra data field, usually left empty for private blockchains
+  "gasLimit": "0x2fefd8", // Gas limit for each block
+  "nonce": "0x0000000000000042",  // Random number to prevent replay attacks
+  "mixhash": "0x0000000000000000000000000000000000000000000000000000000000000000", // Mix hash used for proof-of-work
+  "parentHash": "0x0000000000000000000000000000000000000000000000000000000000000000", // Hash of the parent block
+  "timestamp": "0x00"     // Timestamp of the genesis block
+}
