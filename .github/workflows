@@ -1,0 +1,49 @@
+name: dev-lkxalts
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  AWS_REGION: ap-south-1
+  ECR_REPOSITORY: dev-lkxalts-image
+  ECS_SERVICE: dev-lkxalts-srv
+  ECS_CLUSTER: dev-lkxalts-cluster
+  IMAGE_TAG: latest
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout branch "main"
+      uses: actions/checkout@v2
+      with:
+          ref: 'main'
+          fetch-depth: 0
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Build, tag, and push image to Amazon ECR
+      id: build-image
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        
+      run: |
+        aws ssm get-parameters --names /dev/NPMRC --with-decryption --output text --query "Parameters[*].Value" > .npmrc
+        aws ssm get-parameters-by-path --region ap-south-1 --path /dev/lkxalts/ --with-decryption |  jq -r '.Parameters[]|((.Name|capture(".*/(?<a>.*)").a+"=")+.Value)' > .env 
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+    - name: Updating ECS service
+      run: |
+        aws ecs update-service --cluster ${ECS_CLUSTER} --service ${ECS_SERVICE} --force-new-deployment
